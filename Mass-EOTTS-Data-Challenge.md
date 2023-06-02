@@ -38,6 +38,433 @@ Violation Level of a Violation will also be explored. To conclude, an
 analysis of frequent Violations that occurred over this timeframe will
 be conducted.
 
+``` r
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+# R Libraries
+library(reticulate)
+```
+
+    ## Warning: package 'reticulate' was built under R version 4.2.3
+
+``` r
+library(tidyverse)
+```
+
+    ## Warning: package 'tidyverse' was built under R version 4.2.3
+
+    ## Warning: package 'ggplot2' was built under R version 4.2.3
+
+    ## Warning: package 'tibble' was built under R version 4.2.3
+
+    ## Warning: package 'tidyr' was built under R version 4.2.3
+
+    ## Warning: package 'readr' was built under R version 4.2.3
+
+    ## Warning: package 'dplyr' was built under R version 4.2.3
+
+    ## Warning: package 'forcats' was built under R version 4.2.3
+
+    ## Warning: package 'lubridate' was built under R version 4.2.3
+
+    ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+    ## ✔ dplyr     1.1.2     ✔ readr     2.1.4
+    ## ✔ forcats   1.0.0     ✔ stringr   1.5.0
+    ## ✔ ggplot2   3.4.2     ✔ tibble    3.2.1
+    ## ✔ lubridate 1.9.2     ✔ tidyr     1.3.0
+    ## ✔ purrr     1.0.1     
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ✖ dplyr::filter() masks stats::filter()
+    ## ✖ dplyr::lag()    masks stats::lag()
+    ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+
+``` r
+library(stats)
+library(plyr)
+```
+
+    ## ------------------------------------------------------------------------------
+    ## You have loaded plyr after dplyr - this is likely to cause problems.
+    ## If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+    ## library(plyr); library(dplyr)
+    ## ------------------------------------------------------------------------------
+    ## 
+    ## Attaching package: 'plyr'
+    ## 
+    ## The following objects are masked from 'package:dplyr':
+    ## 
+    ##     arrange, count, desc, failwith, id, mutate, rename, summarise,
+    ##     summarize
+    ## 
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     compact
+
+``` r
+library(scales)
+```
+
+    ## 
+    ## Attaching package: 'scales'
+    ## 
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     discard
+    ## 
+    ## The following object is masked from 'package:readr':
+    ## 
+    ##     col_factor
+
+``` r
+library(ggplot2)
+library(ggthemes)
+library(ggpubr)
+```
+
+    ## Warning: package 'ggpubr' was built under R version 4.2.3
+
+    ## 
+    ## Attaching package: 'ggpubr'
+    ## 
+    ## The following object is masked from 'package:plyr':
+    ## 
+    ##     mutate
+
+``` r
+library(stringr)
+library(broom)
+```
+
+    ## Warning: package 'broom' was built under R version 4.2.3
+
+``` r
+library(gridExtra)
+```
+
+    ## 
+    ## Attaching package: 'gridExtra'
+    ## 
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     combine
+
+``` r
+library(gtsummary)
+```
+
+    ## Warning: package 'gtsummary' was built under R version 4.2.3
+
+    ## #BlackLivesMatter
+    ## 
+    ## Attaching package: 'gtsummary'
+    ## 
+    ## The following object is masked from 'package:plyr':
+    ## 
+    ##     mutate
+
+``` r
+library(caret)
+```
+
+    ## Warning: package 'caret' was built under R version 4.2.3
+
+    ## Loading required package: lattice
+
+    ## Warning: package 'lattice' was built under R version 4.2.3
+
+    ## 
+    ## Attaching package: 'caret'
+    ## 
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     lift
+
+``` r
+library(dynlm)
+```
+
+    ## Loading required package: zoo
+
+    ## Warning: package 'zoo' was built under R version 4.2.3
+
+    ## 
+    ## Attaching package: 'zoo'
+    ## 
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     as.Date, as.Date.numeric
+
+``` r
+library(forecast)
+```
+
+    ## Warning: package 'forecast' was built under R version 4.2.3
+
+    ## Registered S3 method overwritten by 'quantmod':
+    ##   method            from
+    ##   as.zoo.data.frame zoo 
+    ## 
+    ## Attaching package: 'forecast'
+    ## 
+    ## The following object is masked from 'package:ggpubr':
+    ## 
+    ##     gghistogram
+
+``` r
+library(readr)
+library(magrittr)
+```
+
+    ## 
+    ## Attaching package: 'magrittr'
+    ## 
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     set_names
+    ## 
+    ## The following object is masked from 'package:tidyr':
+    ## 
+    ##     extract
+
+``` r
+library(tibble)
+library(lubridate)
+library(Hmisc)
+```
+
+    ## Warning: package 'Hmisc' was built under R version 4.2.3
+
+    ## 
+    ## Attaching package: 'Hmisc'
+    ## 
+    ## The following objects are masked from 'package:plyr':
+    ## 
+    ##     is.discrete, summarize
+    ## 
+    ## The following objects are masked from 'package:dplyr':
+    ## 
+    ##     src, summarize
+    ## 
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     format.pval, units
+
+``` r
+library(GGally)
+```
+
+    ## Warning: package 'GGally' was built under R version 4.2.3
+
+    ## Registered S3 method overwritten by 'GGally':
+    ##   method from   
+    ##   +.gg   ggplot2
+
+``` r
+library(ggiraph)
+```
+
+    ## Warning: package 'ggiraph' was built under R version 4.2.3
+
+``` r
+library(cowplot)
+```
+
+    ## 
+    ## Attaching package: 'cowplot'
+    ## 
+    ## The following object is masked from 'package:ggpubr':
+    ## 
+    ##     get_legend
+    ## 
+    ## The following object is masked from 'package:ggthemes':
+    ## 
+    ##     theme_map
+    ## 
+    ## The following object is masked from 'package:lubridate':
+    ## 
+    ##     stamp
+
+``` r
+library(glue)
+library(htmltools)
+```
+
+    ## Warning: package 'htmltools' was built under R version 4.2.3
+
+``` r
+library(plotly)
+```
+
+    ## 
+    ## Attaching package: 'plotly'
+    ## 
+    ## The following object is masked from 'package:Hmisc':
+    ## 
+    ##     subplot
+    ## 
+    ## The following objects are masked from 'package:plyr':
+    ## 
+    ##     arrange, mutate, rename, summarise
+    ## 
+    ## The following object is masked from 'package:ggplot2':
+    ## 
+    ##     last_plot
+    ## 
+    ## The following object is masked from 'package:stats':
+    ## 
+    ##     filter
+    ## 
+    ## The following object is masked from 'package:graphics':
+    ## 
+    ##     layout
+
+``` r
+library(parallelly)
+```
+
+    ## Warning: package 'parallelly' was built under R version 4.2.3
+
+``` r
+library(parallel)
+library(future.apply)
+```
+
+    ## Warning: package 'future.apply' was built under R version 4.2.3
+
+    ## Loading required package: future
+
+    ## Warning: package 'future' was built under R version 4.2.3
+
+    ## 
+    ## Attaching package: 'future'
+    ## 
+    ## The following object is masked from 'package:caret':
+    ## 
+    ##     cluster
+
+``` r
+library(skimr)
+```
+
+    ## Warning: package 'skimr' was built under R version 4.2.3
+
+``` r
+library(foreach)
+```
+
+    ## 
+    ## Attaching package: 'foreach'
+    ## 
+    ## The following objects are masked from 'package:purrr':
+    ## 
+    ##     accumulate, when
+
+``` r
+library(doParallel)
+```
+
+    ## Loading required package: iterators
+
+``` r
+library(parallelMap)
+library(patchwork)
+```
+
+    ## 
+    ## Attaching package: 'patchwork'
+    ## 
+    ## The following object is masked from 'package:cowplot':
+    ## 
+    ##     align_plots
+
+``` r
+library(reshape2)
+```
+
+    ## 
+    ## Attaching package: 'reshape2'
+    ## 
+    ## The following object is masked from 'package:tidyr':
+    ## 
+    ##     smiths
+
+``` r
+library(colorspace)
+```
+
+    ## Warning: package 'colorspace' was built under R version 4.2.3
+
+``` r
+# Load the Raw Data Source
+FoodEstablishmentViolations <- read_csv("food+establishment+violations.csv")
+```
+
+    ## Rows: 324898 Columns: 15
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (13): ISSDTTM, EXPDTTM, LICSTATUS, LICENSECAT, DESCRIPT, RESULT, RESULTD...
+    ## dbl  (2): LICENSENO, PROPERTY_ID
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+FoodEstablishmentGrades <- read_csv("food+establishment+grades.csv")
+```
+
+    ## Rows: 72243 Columns: 11
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (8): ISSDTTM, EXPDTTM, LICSTATUS, LICENSECAT, DESCRIPT, RESULT, RESULTDT...
+    ## dbl (3): LICENSENO, SUM_VIOLATIONS, SCORE
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+# Transform `FoodEstablishmentViolations` Dataset into Cleaned Dataset
+FoodEstablishmentViolationsClean <- FoodEstablishmentViolations %>%
+    mutate(
+      LICENSENO = as.character(LICENSENO),
+      PROPERTY_ID = as.character(PROPERTY_ID),
+      across(contains("DTTM"), ~as.POSIXct(., format = "%m/%d/%Y %H:%M")),
+      VIOLLEVEL = case_when(
+        VIOLLEVEL == '1919' ~ "",
+        VIOLLEVEL == "*" ~ "Non-Critical Violation (Least Severe)",
+        VIOLLEVEL == "**" ~ "Critical Violation",
+        VIOLLEVEL == "***" ~ "Foodborne Critical Violation (Most Severe)"
+      ),
+      MonthYear = floor_date(RESULTDTTM, unit = "month")
+    ) %>%
+    mutate(MonthYear = make_datetime(year(MonthYear), month(MonthYear)))
+
+
+# Transform `FoodEstablishmentGrades` Dataset into Cleaned Dataset
+FoodEstablishmentGradesClean <- FoodEstablishmentGrades %>%
+    mutate(
+      LICENSENO = as.character(LICENSENO),
+      across(contains("DTTM"), ~as.POSIXct(., format = "%m/%d/%Y %H:%M")),
+      MonthYear = floor_date(RESULTDTTM, unit = "month")
+    ) %>%
+    mutate(MonthYear = make_datetime(year(MonthYear), month(MonthYear)
+    ))
+
+
+# Merge the cleaned Violations and Grades Datasets
+JoinedData <- inner_join(FoodEstablishmentGradesClean, FoodEstablishmentViolationsClean, by = "LICENSENO")
+```
+
+    ## Warning in inner_join(FoodEstablishmentGradesClean, FoodEstablishmentViolationsClean, : Detected an unexpected many-to-many relationship between `x` and `y`.
+    ## ℹ Row 1 of `x` matches multiple rows in `y`.
+    ## ℹ Row 213 of `y` matches multiple rows in `x`.
+    ## ℹ If a many-to-many relationship is expected, set `relationship =
+    ##   "many-to-many"` to silence this warning.
+
+``` r
+PoorPerformerData <- JoinedData %>%
+  filter(GRADE == "C")
+```
+
 # Analysis
 
 ## Insight 1: Average Inspection Scores
@@ -64,8 +491,8 @@ over this timeframe. Most of the variability in the average Inspection
 Score over this time frame is associated with MFW Licenses, where it
 ranged from approximately $36$ to approximately $71$. This $35$ point
 range in this License Category alone saw a major dip in 2014, falling
-$39%$ between 2013 and 2014 from $59$ to $36$. It then sharply rose to
-$67$ in 2015, an $86%$ increase. Across all License Categories between
+$39$% between 2013 and 2014 from $59$ to $36$. It then sharply rose to
+$67$ in 2015, an $86$% increase. Across all License Categories between
 2012 and 2018, there is a general positive trend in the average
 Inspection Score, suggesting that Inspections are effective in improving
 the conditions of these poorer performing Establishments.
@@ -121,15 +548,77 @@ this timeframe, the following insights can be seen:
   Licenses opportunities to avoid having Foodborne Critical Violations
   and thus increase their Average Inspection Score.
 
-- For \*\*No Violation Level\*, there is a general, increasing trend in
-  the Average Inspection Score across all Licencse Categories in
+- For **No Violation Level**, there is a general, increasing trend in
+  the Average Inspection Score across all Licence Categories in
   poor-performing Food Establishments. All License Categories rebounded
   nicely from 2014, especially MFW Licenses, and since 2014 have been in
   the $60$ to $70$ range, showing that the Inspection Process in 2014
   increased the number of areas where these Food Establishments are in
   compliance with local laws and ordinances.
 
-![](Mass-EOTTS-Data-Challenge_files/figure-gfm/Average%20Inspection%20Score%20Line%20Charts-1.png)<!-- -->![](Mass-EOTTS-Data-Challenge_files/figure-gfm/Average%20Inspection%20Score%20Line%20Charts-2.png)<!-- -->
+``` r
+# Line Chart: Average Inspection Score by Year, Faceted by Grade and Grouped by License Category, 2012 - 2018
+(JoinedData %>%
+  mutate(Year = as.numeric(format(RESULTDTTM.x, "%Y"))) %>%
+  group_by(Year, LICENSECAT.x, GRADE) %>%
+  summarise(AverageInspectionScore = mean(SCORE, na.rm = TRUE),
+            PassRate = (mean(VIOLSTATUS == "Pass", na.rm = TRUE)),
+            FailRate = 1 - PassRate
+            ) %>%
+  mutate(PassRate = percent(PassRate),
+         FailRate = percent(FailRate)
+         ) %>%
+  ggplot(aes(x = Year, y = AverageInspectionScore, color = LICENSECAT.x)) + 
+  geom_line() + 
+  facet_wrap(~GRADE) + 
+  theme(plot.margin = margin(1, 1, 1, 1, "cm")) + 
+  scale_color_brewer(palette = "Dark2") +
+  labs(title = "Average Inspection Score by Year",
+       subtitle = "2012-2018",
+       x = "Year",
+       y = "Average Inspection Score",
+       color = "License Category") +
+  theme(legend.position = "bottom",
+        axis.title.x = element_text(),
+        axis.title.y = element_text(),
+        panel.spacing = unit(2, "lines")) + 
+  theme_bw()
+)
+```
+
+![](Mass-EOTTS-Data-Challenge_files/figure-gfm/Average%20Inspection%20Score%20Line%20Charts-1.png)<!-- -->
+
+``` r
+# Line Chart: Average Inspection Score by Year for Poor Performers, Faceted by Violation Level and Grouped by License Category, 2012 - 2018
+(PoorPerformerData %>%
+  mutate(Year = as.numeric(format(RESULTDTTM.x, "%Y"))) %>%
+  group_by(Year, LICENSECAT.x, VIOLLEVEL) %>%
+  summarise(AverageInspectionScore = mean(SCORE, na.rm = TRUE),
+            PassRate = (mean(VIOLSTATUS == "Pass", na.rm = TRUE)),
+            FailRate = 1 - PassRate
+            ) %>%
+  mutate(PassRate = percent(PassRate),
+         FailRate = percent(FailRate)
+         ) %>%
+  ggplot(aes(x = Year, y = AverageInspectionScore, color = LICENSECAT.x)) + 
+  geom_line() + 
+  facet_wrap(~VIOLLEVEL) + 
+  theme(plot.margin = margin(1, 1, 1, 1, "cm")) + 
+  scale_color_brewer(palette = "Dark2") +
+  labs(title = "Average Inspection Score by Year for Poor Performers by Violation Level",
+       subtitle = "2012-2018",
+       x = "Year",
+       y = "Average Inspection Score",
+       color = "License Category") +
+  theme(legend.position = "bottom",
+        axis.title.x = element_text(),
+        axis.title.y = element_text(),
+        panel.spacing = unit(2, "lines")) + 
+  theme_bw()
+)
+```
+
+![](Mass-EOTTS-Data-Challenge_files/figure-gfm/Average%20Inspection%20Score%20Line%20Charts-2.png)<!-- -->
 
 ## Insight 2: Top Inspection Violations
 
@@ -167,7 +656,23 @@ were:
   were the two primary years that this Violation occurred more
   frequently than usual.
 
-<!-- -->
+``` r
+# Top Violations, 2012 - 2018; Chart & Table
+(JoinedData %>%
+ mutate(Year = as.character(as.numeric(format(RESULTDTTM.x, "%Y")))) %>%
+ na.omit() %>%
+ group_by(Year, LICENSENO, VIOLATION, VIOLDESC) %>%
+ summarise(ViolationCount = n()) %>%
+ arrange(Year, desc(ViolationCount)) %>%
+ top_n(10, wt = ViolationCount) %>%
+ ungroup() %>%
+ select(-LICENSENO) %>%
+ select(Year, VIOLATION, VIOLDESC, ViolationCount) %>%
+ group_by(Year, VIOLATION, VIOLDESC) %>%
+ summarise(ViolationCount = sum(ViolationCount)) %>%
+ spread(key = Year, value = ViolationCount)
+)
+```
 
     ## # A tibble: 90 × 9
     ## # Groups:   VIOLATION [90]
@@ -185,7 +690,57 @@ were:
     ## 10 03-3-402.11-.12     Parasit…    110    115    107     85     82     75     27
     ## # ℹ 80 more rows
 
+``` r
+(JoinedData %>%
+  mutate(Year = as.character(as.numeric(format(RESULTDTTM.x, "%Y")))) %>%
+  na.omit() %>%
+  group_by(Year, LICENSENO, VIOLATION, VIOLDESC) %>%
+  summarise(ViolationCount = n()) %>%
+  arrange(Year, desc(ViolationCount)) %>%
+  group_by(Year) %>%
+  top_n(10, wt = ViolationCount) %>%
+  ungroup() %>%
+  select(-LICENSENO) %>%
+  select(Year, VIOLATION, VIOLDESC, ViolationCount) %>%
+  group_by(Year, VIOLATION) %>%
+  summarise(ViolationCount = sum(ViolationCount)) %>%
+  tidyr::pivot_wider(names_from = Year, values_from = ViolationCount, values_fill = 0) %>%
+  mutate(TotalCount = rowSums(across(-VIOLATION))) %>%
+  arrange(desc(TotalCount)) %>%
+  slice_max(TotalCount, n = 10) %>%
+  tidyr::pivot_longer(cols = -c(VIOLATION, TotalCount), names_to = "Year", values_to = "ViolationCount") %>%
+  ggplot(aes(x = Year, y = ViolationCount, fill = VIOLATION)) +
+  geom_col() +
+  geom_text(aes(label = ViolationCount), position = position_stack(vjust = 0.5), color = "black", size = 3) + 
+  labs(title = "Top 10 Violations by Year",
+       x = "Year",
+       y = "Violation Count") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), 
+        plot.margin = margin(1, 1, 1, 1, "cm"))
+)
+```
+
 ![](Mass-EOTTS-Data-Challenge_files/figure-gfm/Top%20Violation%20Analysis-1.png)<!-- -->
+
+``` r
+# Top Violations for Poor Performers, 2012 - 2018; Chart & Table
+
+(PoorPerformerData %>%
+ mutate(Year = as.character(as.numeric(format(RESULTDTTM.x, "%Y")))) %>%
+ na.omit() %>%
+ group_by(Year, LICENSENO, VIOLATION, VIOLDESC) %>%
+ summarise(ViolationCount = n()) %>%
+ arrange(Year, desc(ViolationCount)) %>%
+ top_n(10, wt = ViolationCount) %>%
+ ungroup() %>%
+ select(-LICENSENO) %>%
+ select(Year, VIOLATION, VIOLDESC, ViolationCount) %>%
+ group_by(Year, VIOLATION, VIOLDESC) %>%
+ summarise(ViolationCount = sum(ViolationCount)) %>%
+ spread(key = Year, value = ViolationCount)
+)
+```
 
     ## # A tibble: 90 × 9
     ## # Groups:   VIOLATION [90]
@@ -202,6 +757,37 @@ were:
     ##  9 02-3-602.11-.12/3-… Food Co…   3095   3272   3378   3720   4255   3020   1904
     ## 10 03-3-402.11-.12     Parasit…     32     23     45     26     18     18     10
     ## # ℹ 80 more rows
+
+``` r
+(PoorPerformerData %>%
+  mutate(Year = as.character(as.numeric(format(RESULTDTTM.x, "%Y")))) %>%
+  na.omit() %>%
+  group_by(Year, LICENSENO, VIOLATION, VIOLDESC) %>%
+  summarise(ViolationCount = n()) %>%
+  arrange(Year, desc(ViolationCount)) %>%
+  group_by(Year) %>%
+  top_n(10, wt = ViolationCount) %>%
+  ungroup() %>%
+  select(-LICENSENO) %>%
+  select(Year, VIOLATION, VIOLDESC, ViolationCount) %>%
+  group_by(Year, VIOLATION) %>%
+  summarise(ViolationCount = sum(ViolationCount)) %>%
+  tidyr::pivot_wider(names_from = Year, values_from = ViolationCount, values_fill = 0) %>%
+  mutate(TotalCount = rowSums(across(-VIOLATION))) %>%
+  arrange(desc(TotalCount)) %>%
+  slice_max(TotalCount, n = 10) %>%
+  tidyr::pivot_longer(cols = -c(VIOLATION, TotalCount), names_to = "Year", values_to = "ViolationCount") %>%
+  ggplot(aes(x = Year, y = ViolationCount, fill = VIOLATION)) +
+  geom_col() +
+  geom_text(aes(label = ViolationCount), position = position_stack(vjust = 0.5), color = "black", size = 3) + 
+  labs(title = "Top 10 Violations from Poor Performers by Year",
+       x = "Year",
+       y = "Violation Count") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.margin = margin(1, 1, 1, 1, "cm"))
+)
+```
 
 ![](Mass-EOTTS-Data-Challenge_files/figure-gfm/Top%20Violation%20Analysis-2.png)<!-- -->
 
